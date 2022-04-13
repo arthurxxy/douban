@@ -1,11 +1,8 @@
 package douban
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 //* 引用传递-指针到函数内，函数中参数修改，将影响实际函数
@@ -14,6 +11,7 @@ type CollectorOption func(*Collector)
 type Collector struct {
 	UserAgent string
 	Headers   *http.Header
+	callback  func(*http.Response)
 }
 
 func NewCollector(options ...CollectorOption) *Collector {
@@ -25,8 +23,6 @@ func NewCollector(options ...CollectorOption) *Collector {
 		//f的用法
 		f(c)
 	}
-
-	//c.parseSettingsFromEnv()
 
 	return c
 }
@@ -59,26 +55,27 @@ func (c *Collector) Visit(URL string) error {
 		log.Fatal(err)
 	}
 
-	req.Header.Add("If-None-Match", `W/"wyzzy"`)
+	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	// req.Header.Add("Accept-Language", "en-US,en;q=0.8'")
+	// req.Header.Add("Cache-Control", "max-age=0")
+	// req.Header.Add("Connection", "keep-alive")
+	// req.Header.Add("Referer", "http://www.baidu.com/")
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return getbook(resp)
-}
-func getbook(resp *http.Response) error {
-	// Load the HTML document
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	c.handleresponse(resp)
 
-	// Find the review items
-	doc.Find("div.card-body").Each(func(i int, s *goquery.Selection) {
-		// For each item found, get the title
-		title := s.Find("p").Text()
-		fmt.Printf("Review %d: %s\n", i, title)
-	})
 	return err
+}
+
+func (c *Collector) OnResponse(f func(r *http.Response)) {
+	c.callback = f
+}
+
+func (c *Collector) handleresponse(r *http.Response) {
+	c.callback(r)
 }
