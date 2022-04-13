@@ -3,15 +3,18 @@ package douban
 import (
 	"log"
 	"net/http"
+	"net/url"
 )
 
 //* 引用传递-指针到函数内，函数中参数修改，将影响实际函数
 type CollectorOption func(*Collector)
 
 type Collector struct {
-	UserAgent string
-	Headers   *http.Header
-	callback  func(*http.Response)
+	UserAgent  string
+	Proxy      string
+	Headers    *http.Header
+	callback   func(*http.Response)
+	ProxyTrans *http.Transport
 }
 
 func NewCollector(options ...CollectorOption) *Collector {
@@ -29,11 +32,23 @@ func NewCollector(options ...CollectorOption) *Collector {
 func (c *Collector) Init() {
 	c.UserAgent = "douban - user agent"
 	c.Headers = nil
+	c.ProxyTrans = nil
 }
 
 func UserAgent(ua string) CollectorOption {
 	return func(c *Collector) {
 		c.UserAgent = ua
+	}
+}
+func ProxyTrans(p []string) CollectorOption {
+	return func(c *Collector) {
+		pp := p[0]
+		proxy := func(_ *http.Request) (*url.URL, error) {
+			return url.Parse(pp)
+		}
+		c.ProxyTrans = &http.Transport{
+			Proxy: proxy,
+		}
 	}
 }
 
@@ -48,7 +63,9 @@ func Headers(headers map[string]string) CollectorOption {
 }
 
 func (c *Collector) Visit(URL string) error {
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: c.ProxyTrans,
+	}
 
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
@@ -57,10 +74,6 @@ func (c *Collector) Visit(URL string) error {
 
 	req.Header.Add("User-Agent", c.UserAgent)
 	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	// req.Header.Add("Accept-Language", "en-US,en;q=0.8'")
-	// req.Header.Add("Cache-Control", "max-age=0")
-	// req.Header.Add("Connection", "keep-alive")
-	// req.Header.Add("Referer", "http://www.baidu.com/")
 
 	resp, err := client.Do(req)
 	if err != nil {

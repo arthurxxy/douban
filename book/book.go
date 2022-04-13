@@ -18,7 +18,7 @@ func Getbook(resp *http.Response) {
 	}
 
 	// Find the review items
-	doc.Find("div.card-deck.mb-3text-center").Each(func(i int, s *goquery.Selection) {
+	doc.Find("div").Each(func(i int, s *goquery.Selection) {
 		// For each item found, get the title
 		title := s.Find("div").Text()
 		fmt.Printf("Review %d: %s\n", i, title)

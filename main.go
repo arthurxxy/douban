@@ -32,6 +32,7 @@ func main() {
 	var mongodb = config.Conf.GetString("db.mongodb")
 	var database = config.Conf.GetString("db.database")
 	var collection = config.Conf.GetString("db.collection")
+	var proxys = config.Conf.GetStringSlice("ini.proxy")
 
 	//connect to mongodb
 	coll, err := mongo.ConnectMongo(mongodb, database, collection)
@@ -41,6 +42,7 @@ func main() {
 
 	c := douban.NewCollector(
 		douban.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"),
+		douban.ProxyTrans(proxys),
 	)
 
 	c.OnResponse(func(r *http.Response) {
@@ -61,7 +63,7 @@ func main() {
 		c.Visit(fmt.Sprintf(url, fromid))
 	})
 	if fromid == 0 {
-		fromid = mongo.GetMaxID(mongodb, database, collection)
+		fromid = mongo.GetMaxID(mongodb, database, collection) + 1
 	}
 
 	c.Visit(fmt.Sprintf(url, fromid))
