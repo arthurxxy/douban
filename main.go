@@ -22,9 +22,9 @@ import (
 
 func main() {
 	//调试内存使用
-	go func() {
-		http.ListenAndServe("0.0.0.0:8080", nil)
-	}()
+	// go func() {
+	// 	http.ListenAndServe("0.0.0.0:8080", nil)
+	// }()
 
 	var delay = config.Conf.GetInt("ini.delay")
 	var url = config.Conf.GetString("ini.url")
