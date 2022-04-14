@@ -71,8 +71,8 @@ func Headers(headers map[string]string) CollectorOption {
 func (c *Collector) Visit(URL string) error {
 	sp := c.switchProxy()
 	tr := &http.Transport{
-		Proxy:             http.ProxyURL(sp),
-		DisableKeepAlives: true,
+		Proxy: http.ProxyURL(sp),
+		//DisableKeepAlives: true,
 	}
 	client := &http.Client{
 		Transport: tr,
