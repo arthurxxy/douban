@@ -42,12 +42,12 @@ func main() {
 
 	c := douban.NewCollector(
 		douban.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"),
-		douban.ProxyTrans(proxys),
+		douban.DBProxy(proxys),
 	)
 
 	c.OnResponse(func(r *http.Response) {
 		books := book.Getdouban(r)
-		if books != nil {
+		if books["书名"] != "" {
 			log.Println("get books detail success:", books["ID"], "-", books["书名"])
 			result, err := coll.InsertOne(context.Background(), books)
 			if err == nil {

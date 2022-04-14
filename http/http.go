@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sync/atomic"
 )
 
 //* 引用传递-指针到函数内，函数中参数修改，将影响实际函数
@@ -11,10 +12,10 @@ type CollectorOption func(*Collector)
 
 type Collector struct {
 	UserAgent  string
-	Proxy      string
 	Headers    *http.Header
 	callback   func(*http.Response)
-	ProxyTrans *http.Transport
+	DBProxy    []string
+	proxyindex uint32
 }
 
 func NewCollector(options ...CollectorOption) *Collector {
@@ -32,7 +33,7 @@ func NewCollector(options ...CollectorOption) *Collector {
 func (c *Collector) Init() {
 	c.UserAgent = "douban - user agent"
 	c.Headers = nil
-	c.ProxyTrans = nil
+	c.proxyindex = 0
 }
 
 func UserAgent(ua string) CollectorOption {
@@ -40,15 +41,20 @@ func UserAgent(ua string) CollectorOption {
 		c.UserAgent = ua
 	}
 }
-func ProxyTrans(p []string) CollectorOption {
+func DBProxy(p []string) CollectorOption {
 	return func(c *Collector) {
-		pp := p[0]
-		proxy := func(_ *http.Request) (*url.URL, error) {
-			return url.Parse(pp)
-		}
-		c.ProxyTrans = &http.Transport{
-			Proxy: proxy,
-		}
+		c.DBProxy = p
+	}
+}
+
+func (c *Collector) switchProxy() *url.URL {
+	if len(c.DBProxy) < 1 {
+		return nil
+	} else {
+		index := atomic.AddUint32(&c.proxyindex, 1) - 1
+		sURL := c.DBProxy[index%uint32(len(c.DBProxy))]
+		u, _ := url.Parse(sURL)
+		return u
 	}
 }
 
@@ -63,8 +69,13 @@ func Headers(headers map[string]string) CollectorOption {
 }
 
 func (c *Collector) Visit(URL string) error {
+	sp := c.switchProxy()
+	tr := &http.Transport{
+		Proxy:             http.ProxyURL(sp),
+		DisableKeepAlives: true,
+	}
 	client := &http.Client{
-		Transport: c.ProxyTrans,
+		Transport: tr,
 	}
 
 	req, err := http.NewRequest("GET", URL, nil)
