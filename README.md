@@ -15,7 +15,7 @@
 ### 配置说明
 ---
 修改conf_.yaml 文件名为conf.yaml
-···
+```
 ini:
   url: https://book.douban.com/subject/%d #保持默认即可
   fromid: 1000001  #第一次运行时保持不变，第二次运行改为0
@@ -28,4 +28,4 @@ db:
   mongodb: mongodb://username:password@127.0.0.1:27017/doubandb #mongodb的链接配置
   database: doubandb  #数据库名
   collection: books   #表名
-···
+```
