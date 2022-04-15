@@ -6,7 +6,7 @@
 
 ### 实现思路及遇到的问题
 ---
-- 豆瓣图书的起始页面从https://book.douban.com/subject/1000001开始，通过自增ID的方式遍历
+- 豆瓣图书的起始页面从https://book.douban.com/subject/1000001 开始，通过自增ID的方式遍历
 - 豆瓣有反爬虫机制，实测2秒间隔的爬取频率，容易跳转到验证页面
 - 稳定的单ip爬取频率为3秒间隔
 - 提高爬取效率的途径，增加proxy的数量
@@ -29,3 +29,5 @@ db:
   database: doubandb  #数据库名
   collection: books   #表名
 ```
+### 运行页面
+[]
