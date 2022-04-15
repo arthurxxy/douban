@@ -11,11 +11,12 @@ import (
 type CollectorOption func(*Collector)
 
 type Collector struct {
-	UserAgent  string
-	Headers    *http.Header
-	callback   func(*http.Response)
-	DBProxy    []string
-	proxyindex uint32
+	UserAgent    string
+	Headers      *http.Header
+	callback     func(*http.Response)
+	DBProxy      []string
+	proxyindex   uint32
+	CurrentProxy string
 }
 
 func NewCollector(options ...CollectorOption) *Collector {
@@ -53,6 +54,7 @@ func (c *Collector) switchProxy() *url.URL {
 	} else {
 		index := atomic.AddUint32(&c.proxyindex, 1) - 1
 		sURL := c.DBProxy[index%uint32(len(c.DBProxy))]
+		c.CurrentProxy = sURL
 		u, _ := url.Parse(sURL)
 		return u
 	}

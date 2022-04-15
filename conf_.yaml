@@ -1,11 +1,12 @@
 ini:
   url: https://book.douban.com/subject/%d
-  fromid: 0
-  delay: 12
+  fromid: 1000001
+  delay: 3
   proxy:
-    - http://xxxx:xx
-    - http://xxxx:xx
+    - http://127.0.0.1:7890  
+    - socks5://127.0.0.1::1088
+    - http://127.0.0.1::7890
 db:
-  mongodb: mongodb://username:password@xxx:27017/doubandb
+  mongodb: mongodb://username:password@127.0.0.1:27017/doubandb
   database: doubandb
   collection: books
