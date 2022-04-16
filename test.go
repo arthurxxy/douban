@@ -65,7 +65,10 @@ func main() {
 		} else {
 			log.Println("get books detail error!")
 		}
-		log.Println("use proxy:", c.CurrentProxy)
+		if c.CurrentProxy != "" {
+			log.Println("use proxy:", c.CurrentProxy)
+		}
+
 		time.Sleep(time.Duration(delay) * time.Second)
 		fromid++
 		c.Visit(fmt.Sprintf(url, fromid))

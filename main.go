@@ -46,7 +46,7 @@ func main() {
 	)
 
 	c.OnResponse(func(r *http.Response) {
-		books := book.Getdouban(r)
+		books := book.Getdouban(fromid, r)
 		if books["书名"] != "" {
 			log.Println("get books detail success:", books["ID"], "-", books["书名"])
 			result, err := coll.InsertOne(context.Background(), books)

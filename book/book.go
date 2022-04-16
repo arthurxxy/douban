@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,7 +26,7 @@ func Getbook(resp *http.Response) {
 	})
 }
 
-func Getdouban(resp *http.Response) map[string]string {
+func Getdouban(fromid int, resp *http.Response) map[string]string {
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
@@ -40,7 +41,7 @@ func Getdouban(resp *http.Response) map[string]string {
 		mapbooks["书名"] = s.Find("h1 span").Text()
 		mapbooks["评分"] = s.Find("strong.rating_num").Text()
 		mapbooks["封面"], _ = s.Find("a.nbg").Attr("href")
-		mapbooks["ID"] = resp.Request.URL.Path[9:16]
+		mapbooks["ID"] = strconv.Itoa(fromid)
 		mapbooks["简介"] = s.Find("div.intro").Text()
 		mapbooks["created"] = time.Now().Format("20060102150405")
 		bookinfo := s.Find("div#info").Text()
