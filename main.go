@@ -33,6 +33,7 @@ func main() {
 	var database = config.Conf.GetString("db.database")
 	var collection = config.Conf.GetString("db.collection")
 	var proxys = config.Conf.GetStringSlice("ini.proxy")
+	var disableKeepAlives = config.Conf.GetBool("ini.disableKeepAlives")
 
 	//connect to mongodb
 	coll, err := mongo.ConnectMongo(mongodb, database, collection)
@@ -43,6 +44,7 @@ func main() {
 	c := douban.NewCollector(
 		douban.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"),
 		douban.DBProxy(proxys),
+		douban.DisableKeepAlives(disableKeepAlives),
 	)
 
 	c.OnResponse(func(r *http.Response) {

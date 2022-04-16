@@ -11,12 +11,13 @@ import (
 type CollectorOption func(*Collector)
 
 type Collector struct {
-	UserAgent    string
-	Headers      *http.Header
-	callback     func(*http.Response)
-	DBProxy      []string
-	proxyindex   uint32
-	CurrentProxy string
+	UserAgent         string
+	Headers           *http.Header
+	callback          func(*http.Response)
+	DBProxy           []string
+	proxyindex        uint32
+	CurrentProxy      string
+	DisableKeepAlives bool
 }
 
 func NewCollector(options ...CollectorOption) *Collector {
@@ -35,6 +36,7 @@ func (c *Collector) Init() {
 	c.UserAgent = "douban - user agent"
 	c.Headers = nil
 	c.proxyindex = 0
+	c.DisableKeepAlives = false
 }
 
 func UserAgent(ua string) CollectorOption {
@@ -45,6 +47,11 @@ func UserAgent(ua string) CollectorOption {
 func DBProxy(p []string) CollectorOption {
 	return func(c *Collector) {
 		c.DBProxy = p
+	}
+}
+func DisableKeepAlives(b bool) CollectorOption {
+	return func(c *Collector) {
+		c.DisableKeepAlives = b
 	}
 }
 
@@ -73,8 +80,8 @@ func Headers(headers map[string]string) CollectorOption {
 func (c *Collector) Visit(URL string) error {
 	sp := c.switchProxy()
 	tr := &http.Transport{
-		Proxy: http.ProxyURL(sp),
-		//DisableKeepAlives: true,
+		Proxy:             http.ProxyURL(sp),
+		DisableKeepAlives: c.DisableKeepAlives,
 	}
 	client := &http.Client{
 		Transport: tr,

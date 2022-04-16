@@ -30,7 +30,7 @@ func Getdouban(fromid int, resp *http.Response) map[string]string {
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	mapbooks := make(map[string]string)
 
