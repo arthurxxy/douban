@@ -48,6 +48,9 @@ func main() {
 	)
 
 	c.OnResponse(func(r *http.Response) {
+		if c.CurrentProxy != "" {
+			log.Println("use proxy:", c.CurrentProxy)
+		}
 		books := book.Getdouban(fromid, r)
 		if books["书名"] != "" {
 			log.Println("get books detail success:", books["ID"], "-", books["书名"])

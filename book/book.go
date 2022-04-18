@@ -30,8 +30,12 @@ func Getdouban(fromid int, resp *http.Response) map[string]string {
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
+	if resp.StatusCode == 403 {
+		log.Fatal("visit forbidden", resp.Request.URL)
+	}
+
 	mapbooks := make(map[string]string)
 
 	// Find the review items
